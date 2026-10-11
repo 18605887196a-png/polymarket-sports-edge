@@ -1,0 +1,60 @@
+event,outcome,poly_price,pinnacle_prob,raw_edge,net_edge,poly_volume,match_confidence,signal
+NHL: 2027 Champion,New Jersey Devils,0.0235,0.0368,0.5647,0.5487,39717,high,YES
+NBA: 2027 Champion,Cleveland Cavaliers,0.0245,0.0329,0.3425,0.3265,857951,high,YES
+NHL: 2027 Champion,Buffalo Sabres,0.0185,0.0241,0.304,0.288,39868,high,YES
+NBA: 2027 Champion,Atlanta Hawks,0.0105,0.0134,0.2803,0.2643,859347,high,YES
+Pro Football: 2027 Champion (Super Bowl LXI),Houston Texans,0.0125,0.016,0.2783,0.2623,2470287,high,YES
+NBA: 2027 Champion,Boston Celtics,0.045,0.0544,0.2083,0.1923,686187,high,YES
+NHL: 2027 Champion,Edmonton Oilers,0.085,0.1025,0.2057,0.1897,43839,high,YES
+Pro Football: 2027 Champion (Super Bowl LXI),Philadelphia Eagles,0.0225,0.0263,0.1686,0.1526,1719521,high,YES
+NHL: 2027 Champion,Los Angeles Kings,0.0185,0.0212,0.146,0.13,34104,high,YES
+NBA: 2027 Champion,Indiana Pacers,0.018,0.0205,0.1386,0.1226,753647,high,YES
+NBA: 2027 Champion,Portland Trail Blazers,0.0105,0.0116,0.1086,0.0926,871119,high,YES
+Pro Football: 2027 Champion (Super Bowl LXI),New England Patriots,0.0295,0.0326,0.1043,0.0883,1128137,high,YES
+Pro Football: 2027 Champion (Super Bowl LXI),Atlanta Falcons,0.0145,0.016,0.102,0.086,1710816,high,YES
+Pro Football: 2027 Champion (Super Bowl LXI),Detroit Lions,0.0285,0.0313,0.0991,0.0831,1658234,high,YES
+NHL: 2027 Champion,Florida Panthers,0.085,0.093,0.0941,0.0781,38972,high,YES
+NHL: 2027 Champion,Washington Capitals,0.0395,0.0429,0.0871,0.0711,32615,high,YES
+NHL: 2027 Champion,San Jose Sharks,0.0255,0.0275,0.0795,0.0635,39137,high,YES
+Pro Football: 2027 Champion (Super Bowl LXI),Green Bay Packers,0.0115,0.0124,0.0741,0.0581,1821782,high,YES
+NBA: 2027 Champion,Denver Nuggets,0.0325,0.0348,0.07,0.054,863543,high,YES
+Pro Football: 2027 Champion (Super Bowl LXI),Cincinnati Bengals,0.0375,0.0397,0.0594,0.0434,1845094,high,YES
+NBA: 2027 Champion,Oklahoma City Thunder,0.185,0.1947,0.0523,0.0363,674696,high,YES
+NBA: 2027 Champion,Miami Heat,0.0375,0.0394,0.0499,0.0339,889899,high,YES
+Pro Football: 2027 Champion (Super Bowl LXI),Baltimore Ravens,0.0765,0.0794,0.0381,0.0221,1593197,high,
+NHL: 2027 Champion,New York Rangers,0.013,0.0133,0.0228,0.0068,38277,high,
+NHL: 2027 Champion,Minnesota Wild,0.0465,0.0469,0.0086,-0.0074,50803,high,
+NHL: 2027 Champion,Toronto Maple Leafs,0.0315,0.0314,-0.0018,-0.0178,33499,high,
+Pro Football: 2027 Champion (Super Bowl LXI),Dallas Cowboys,0.021,0.0209,-0.0043,-0.0203,1706113,high,
+Pro Football: 2027 Champion (Super Bowl LXI),Minnesota Vikings,0.0305,0.0302,-0.0107,-0.0267,1441339,high,
+Pro Football: 2027 Champion (Super Bowl LXI),San Francisco 49ers,0.095,0.0938,-0.0123,-0.0283,1677714,high,
+NHL: 2027 Champion,Anaheim Ducks,0.0215,0.0212,-0.0139,-0.0299,43262,high,
+Pro Football: 2027 Champion (Super Bowl LXI),Denver Broncos,0.0325,0.032,-0.0144,-0.0304,1870569,high,
+Pro Football: 2027 Champion (Super Bowl LXI),Jacksonville Jaguars,0.0655,0.0629,-0.0391,-0.0551,1952788,high,
+NBA: 2027 Champion,Detroit Pistons,0.0315,0.0298,-0.0533,-0.0693,865265,high,
+Pro Football: 2027 Champion (Super Bowl LXI),Seattle Seahawks,0.085,0.0798,-0.0612,-0.0772,1260358,high,
+NBA: 2027 Champion,Los Angeles Lakers,0.0235,0.0216,-0.079,-0.095,875132,high,
+Pro Football: 2027 Champion (Super Bowl LXI),Las Vegas Raiders,0.0125,0.0115,-0.0815,-0.0975,2063531,high,
+NBA: 2027 Champion,Toronto Raptors,0.0335,0.0305,-0.0895,-0.1055,867200,high,
+NBA: 2027 Champion,Houston Rockets,0.0195,0.0176,-0.0996,-0.1156,948205,high,
+NHL: 2027 Champion,Utah Mammoth,0.0295,0.0264,-0.1038,-0.1198,37514,high,
+NHL: 2027 Champion,Philadelphia Flyers,0.0145,0.013,-0.106,-0.122,20874,high,
+NHL: 2027 Champion,Dallas Stars,0.055,0.0492,-0.1061,-0.1221,28283,high,
+Pro Football: 2027 Champion (Super Bowl LXI),Kansas City Chiefs,0.0995,0.0879,-0.1165,-0.1325,1842962,high,
+NHL: 2027 Champion,Vegas Golden Knights,0.075,0.0652,-0.1306,-0.1466,59258,high,
+NHL: 2027 Champion,Montreal Canadiens,0.0555,0.0478,-0.1381,-0.1541,47848,high,
+Pro Football: 2027 Champion (Super Bowl LXI),Chicago Bears,0.0485,0.0418,-0.1389,-0.1549,1818658,high,
+NHL: 2027 Champion,Tampa Bay Lightning,0.065,0.0557,-0.1431,-0.1591,17118,high,
+NBA: 2027 Champion,Philadelphia 76ers,0.1105,0.0943,-0.1465,-0.1625,1217661,high,
+NBA: 2027 Champion,San Antonio Spurs,0.225,0.1919,-0.1472,-0.1632,738849,high,
+Pro Football: 2027 Champion (Super Bowl LXI),Buffalo Bills,0.115,0.098,-0.1481,-0.1641,1179842,high,
+Pro Football: 2027 Champion (Super Bowl LXI),Los Angeles Rams,0.125,0.1062,-0.1504,-0.1664,1262267,high,
+NHL: 2027 Champion,Carolina Hurricanes,0.105,0.089,-0.1521,-0.1681,35693,high,
+NHL: 2027 Champion,Colorado Avalanche,0.125,0.103,-0.176,-0.192,56198,high,
+NHL: 2027 Champion,Columbus Blue Jackets,0.0155,0.0121,-0.2189,-0.2349,36851,high,
+NHL: 2027 Champion,Boston Bruins,0.0125,0.0084,-0.3281,-0.3441,34372,high,
+NBA: 2027 Champion,Minnesota Timberwolves,0.0515,0.034,-0.3402,-0.3562,782905,high,
+NHL: 2027 Champion,Ottawa Senators,0.0345,0.0204,-0.4077,-0.4237,52099,high,
+NBA: 2027 Champion,New York Knicks,0.125,0.0739,-0.4085,-0.4245,878019,high,
+NHL: 2027 Champion,Pittsburgh Penguins,0.0175,0.0102,-0.4145,-0.4305,39828,high,
+NHL: 2027 Champion,Winnipeg Jets,0.0115,0.0066,-0.4274,-0.4434,38143,high,
