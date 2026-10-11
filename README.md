@@ -1,18 +1,34 @@
-# Polymarket 体育预测套利研究
+# Polymarket 预测套利研究
 
-一句话：**找 Polymarket（及 Gate 预测板块）上相对 Pinnacle 定价错的体育盘，纸面验证，不自动下真钱单。**
+一句话：**找 Polymarket（及 Gate 预测板块）上定价错的盘，纸面验证，不自动下真钱单。**
 
-## 架构：五层
+## 架构：两条线
 
+### 🪙 加密线（主力，2026-10-11 新建）
 ```
-1. 数据层  Polymarket 价格 + Pinnacle 基准赔率 + Gate 费用模型
-2. 模型层  scanner-first（跨市场比价）；Elo 自建概率降为 P2 备用
-3. 信号层  只输出「扣掉 Gate 1.6% 往返成本后净 edge > 3%」的信号
-4. 资金层  1/4 Kelly、单注上限 2%、回撤 20% 熔断（真钱阶段才用）
-5. 验证层  纸面记录 CLV，攒够 200 个信号、平均 CLV ≥ +2%、beat 收盘 ≥ 55% 才谈真钱
+Tier 1 短期 (≤7天结算): 每日 BTC/ETH/SOL 价格盘
+  → 基准: Deribit 期权隐含波动率 → 对数正态分布 → 理论概率
+  → 只报净 edge > 5% (扣 Gate 1.6% 成本)
+  → 首跑: 55 盘口, 10 信号
+Tier 2 长期 (>7天结算): 季度/年度价格目标
+  → 同一模型, 更长时间 horizon
+  → 当前: 0 盘口 (长线价格盘少, 待补充发现)
 ```
+`scanners/crypto_scanner.py` | 结果样例 `results/crypto_scan_*.csv`
 
-详细方法论见 [docs/sports-edge-framework.md](docs/sports-edge-framework.md)。
+### 🏆 体育线
+```
+冠军盘扫描器: Polymarket 冠军盘 vs Pinnacle
+  → 首跑 22 个纸面信号 (用户已叫停, 不再主推)
+单场盘: 结构性 0 信号 (Polymarket 单场多在 Pinnacle 不覆盖的小联赛)
+跟单顶级钱包: 已证伪 (回测负期望)
+```
+`scanners/outrights_scanner.py`, `scanners/game_scanner_v2.py` | `research/` 存档
+
+## 五层框架（方法论）
+1. 数据层 → 2. 模型层 → 3. 信号层 → 4. 资金层 → 5. 纸面验证层
+详细见 [docs/sports-edge-framework.md](docs/sports-edge-framework.md)。
+验证标准: 200 个纸面信号, 平均 CLV ≥ +2%, beat 收盘 ≥ 55% 才谈真钱。
 
 ## 目录
 
