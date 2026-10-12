@@ -1,5 +1,6 @@
 """
-加密预测扫描器 v1 (2026-10-11)
+加密预测扫描器 (2026-10-11 建, 2026-10-12 修: BTC/ETH 波动率改走 Deribit IV —
+此前 ETH 静默用 realized vol, 是 10-11/10-12 两次"稳"单被推翻的根因)
 
 架构 (按用户要求):
   Tier 1 短期: 现在可买, 7天内结算 (每日 BTC/ETH 价格盘为主)
@@ -7,8 +8,9 @@
 
 原理: Polymarket 加密价格盘 vs 期权隐含概率分布 (对数正态)
   - 现价: Gate 现货
-  - 波动率: 近期 realized vol (自适应窗口 = 2x 到期时间, 上限30天);
-           可用环境变量 CRYPTO_IV_OVERRIDE 覆盖 (小数, 如 0.6 = 60%)
+  - 波动率: BTC/ETH 用 Deribit 期权链 IV (打法规则 #1: 期权市场为准; 每到期单独取最接近结算日的平均 IV);
+           SOL 用 realized vol 降级 (Deribit 无链), CRYPTO_IV_OVERRIDE 环境变量可覆盖 (小数, 如 0.6 = 60%);
+           每次结果带 vol_src 字段标注来源
   - 模型: P(above X) = 1 - N((ln(X/S)+0.5σ²T)/(σ√T))
   - edge = (model - market)/market; 净 edge 扣 Gate 1.6% 往返成本
   - 只报净 edge > 5% (加密盘滑点大, 阈值比体育高)
@@ -35,10 +37,10 @@ def spot_price(symbol):
     t = get(f"https://api.gateio.ws/api/v4/spot/tickers?currency_pair={symbol}_USDT")
     return float(t[0]["last"])
 
-def deribit_iv(hours_ahead):
-    """取到期日最接近目标 horizon 的 Deribit BTC 期权平均 IV (小数). 失败返回 None"""
+def deribit_iv(currency, hours_ahead):
+    """取指定币种、到期日最接近目标 horizon 的 Deribit 期权平均 IV (小数). 失败返回 None"""
     try:
-        d = get("https://www.deribit.com/api/v2/public/get_book_summary_by_currency?currency=BTC&kind=option", timeout=25)
+        d = get(f"https://www.deribit.com/api/v2/public/get_book_summary_by_currency?currency={currency}&kind=option", timeout=25)
         import datetime, re
         now = datetime.datetime.now(datetime.timezone.utc)
         from collections import defaultdict
@@ -66,18 +68,24 @@ def deribit_iv(hours_ahead):
         return None
 
 _IV_CACHE = {}
+_DERIBIT_COINS = {"BTC": "BTC", "ETH": "ETH"}  # 有 Deribit 期权链的币种; SOL 等用 realized 降级
+
 def get_vol(symbol, horizon_hours):
-    """波动率: BTC 用 Deribit IV; 其他用 realized; 环境变量可覆盖"""
+    """波动率: BTC/ETH 用 Deribit IV (打法规则 #1, 期权市场为准); 其他用 realized;
+       环境变量 CRYPTO_IV_OVERRIDE 可覆盖 (小数, 如 0.6 = 60%).
+       返回 (hourly_vol, vol_src, iv_pct_or_None)"""
     iv_override = os.environ.get("CRYPTO_IV_OVERRIDE")
     if iv_override:
-        return float(iv_override) / math.sqrt(24 * 365)
-    if symbol == "BTC":
-        if "btc" not in _IV_CACHE:
-            _IV_CACHE["btc"] = deribit_iv(horizon_hours)
-        iv = _IV_CACHE["btc"]
+        return float(iv_override) / math.sqrt(24 * 365), "override", float(iv_override)
+    cur = _DERIBIT_COINS.get(symbol)
+    if cur:
+        if cur not in _IV_CACHE:
+            _IV_CACHE[cur] = deribit_iv(cur, horizon_hours)
+        iv = _IV_CACHE[cur]
         if iv:
-            return iv / math.sqrt(24 * 365)
-    return realized_vol(symbol, horizon_hours)
+            return iv / math.sqrt(24 * 365), f"deribit-{cur}", iv
+        return realized_vol(symbol, horizon_hours), f"realized(downgraded:{cur}-IV-fail)", None
+    return realized_vol(symbol, horizon_hours), "realized", None
 
 def realized_vol(symbol, horizon_hours):
     # 自适应窗口: 2x 到期时间,  clamp 24h..720h
@@ -149,25 +157,20 @@ def scan():
                     if not mm:
                         continue
                     strike = float(mm.group(1).replace(",", ""))
-                    hv = get_vol(sym, hours)
+                    hv, vol_src, iv_ann = get_vol(sym, hours)
                     model_p = prob_above(spot, strike, hv, hours)
-                    # 方向: model>market => 买Yes; model<market => 买No (先定, 稳健检查要用)
-                    direction = "买Yes" if model_p > market_yes else "买No"
-                    # 稳健性检查 v2: vol 上下浮动 30%, 净edge 必须在两端都 >5%
-                    # (旧版只检查方向不翻转, 在model接近market时形同虚设)
+                    # v2 方向与信号: 绝对百分点差 >= 5pp 才算信号
+                    # 买Yes: model_p - market_yes >= 5pp; 买No: market_yes - model_p >= 5pp
+                    pp_diff = model_p - market_yes  # 正=Yes被低估, 负=No被低估
+                    direction = "买Yes" if pp_diff > 0 else "买No"
+                    # 稳健性检查 v3: vol 上下浮动 30%, 绝对5pp差在两端都成立且方向不变
                     robust = True
                     for mult in [0.7, 1.3]:
                         hv2 = hv * mult
                         mp2 = prob_above(spot, strike, hv2, hours)
-                        # 在该vol下重算方向和净edge
-                        if mp2 > market_yes:
-                            d2, pay2 = "买Yes", market_yes
-                            e2 = (mp2 - market_yes) / market_yes if market_yes > 0 else 0
-                        else:
-                            d2, pay2 = "买No", 1 - market_yes
-                            e2 = ((1 - mp2) - pay2) / pay2 if pay2 > 0 else 0
-                        net2 = e2 - GATE_FEE_ROUNDTRIP
-                        if d2 != direction or net2 < EDGE_THRESHOLD:
+                        pp2 = mp2 - market_yes
+                        d2 = "买Yes" if pp2 > 0 else "买No"
+                        if d2 != direction or abs(pp2) < EDGE_THRESHOLD:
                             robust = False
                             break
                     edge = (model_p - market_yes) / market_yes if market_yes > 0 else 0
@@ -190,8 +193,11 @@ def scan():
                         "pay_price": round(pay_price, 4),
                         "market_yes": round(market_yes, 4), "model_p": round(model_p, 4),
                         "direction": direction, "net_edge": round(net, 4),
-                        "signal": "YES" if (net > EDGE_THRESHOLD and robust) else "",
+                        "pp_diff": round(pp_diff, 4),
+                        "signal": "YES" if (abs(pp_diff) >= EDGE_THRESHOLD and robust) else "",
                         "robust": robust,
+                        "vol_src": vol_src,
+                        "iv_ann": round(iv_ann, 4) if iv_ann else "",
                         "end": edt.strftime("%m-%d %H:%M"),
                     })
     # 去重 (同一 condition_id 可能被多个 query 搜到)
