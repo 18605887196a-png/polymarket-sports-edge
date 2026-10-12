@@ -151,22 +151,28 @@ def scan():
                     strike = float(mm.group(1).replace(",", ""))
                     hv = get_vol(sym, hours)
                     model_p = prob_above(spot, strike, hv, hours)
-                    # 稳健性检查: vol 上下浮动 30%, edge 方向必须一致
+                    # 方向: model>market => 买Yes; model<market => 买No (先定, 稳健检查要用)
+                    direction = "买Yes" if model_p > market_yes else "买No"
+                    # 稳健性检查 v2: vol 上下浮动 30%, 净edge 必须在两端都 >5%
+                    # (旧版只检查方向不翻转, 在model接近market时形同虚设)
                     robust = True
                     for mult in [0.7, 1.3]:
                         hv2 = hv * mult
                         mp2 = prob_above(spot, strike, hv2, hours)
-                        # 方向一致性: model vs market 的大小关系不变
-                        if (mp2 > market_yes) != (model_p > market_yes):
-                            # 允许小概率侧的微小穿越 (差距<1%时不算)
-                            if abs(mp2 - market_yes) > 0.01 and abs(model_p - market_yes) > 0.01:
-                                robust = False
-                                break
+                        # 在该vol下重算方向和净edge
+                        if mp2 > market_yes:
+                            d2, pay2 = "买Yes", market_yes
+                            e2 = (mp2 - market_yes) / market_yes if market_yes > 0 else 0
+                        else:
+                            d2, pay2 = "买No", 1 - market_yes
+                            e2 = ((1 - mp2) - pay2) / pay2 if pay2 > 0 else 0
+                        net2 = e2 - GATE_FEE_ROUNDTRIP
+                        if d2 != direction or net2 < EDGE_THRESHOLD:
+                            robust = False
+                            break
                     edge = (model_p - market_yes) / market_yes if market_yes > 0 else 0
                     net = edge - GATE_FEE_ROUNDTRIP
                     tier = "short" if hours <= SHORT_DAYS * 24 else "long"
-                    # 方向: model>market => 买Yes; model<market => 买No
-                    direction = "买Yes" if model_p > market_yes else "买No"
                     # 买No 的 edge 按 No 价格算
                     pay_price = market_yes
                     if direction == "买No":
@@ -176,8 +182,10 @@ def scan():
                         net = edge - GATE_FEE_ROUNDTRIP
                         pay_price = no_price
                     results.append({
+                        "condition_id": m.get("conditionId", ""),
+                        "market_id": m.get("id", ""),
                         "tier": tier, "coin": sym, "event": title[:60],
-                        "question": qtext[:60], "strike": strike,
+                        "question": qtext, "strike": strike,
                         "spot": round(spot, 1), "hours_left": round(hours, 1),
                         "pay_price": round(pay_price, 4),
                         "market_yes": round(market_yes, 4), "model_p": round(model_p, 4),
@@ -186,10 +194,10 @@ def scan():
                         "robust": robust,
                         "end": edt.strftime("%m-%d %H:%M"),
                     })
-    # 去重 (同一 question 可能被多个 query 搜到)
+    # 去重 (同一 condition_id 可能被多个 query 搜到)
     seen, uniq = set(), []
     for r in results:
-        k = (r["question"], r["end"])
+        k = r["condition_id"] or (r["question"], r["end"])
         if k not in seen:
             seen.add(k)
             uniq.append(r)
