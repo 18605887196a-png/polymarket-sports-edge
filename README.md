@@ -41,14 +41,7 @@
 
 详细见 [docs/crypto-prediction-framework.md](docs/crypto-prediction-framework.md)。
 
-## NBA 滚球监控（nba_live_monitor/）
-
-2026-10-21 揭幕战实盘跑通后封装的滚球监控能力，完整规则见 [nba_live_monitor/SKILL.md](nba_live_monitor/SKILL.md)。
-
-- **数据源**：ESPN scoreboard/summary（比分、时钟、球员 box score）+ Polymarket gamma（bestBid/bestAsk，只认真实盘口，不用滞后的成交价）
-- **胜率模型**：WP = Φ((lead + M·t/48) / (13·√(t/48)))，M 为赛前预期分差；误差约 ±4pp
-- **双轨制（2026-10-21 改版）**：球员轨全场监控，只推达成概率约九成、卖价比概率低 ≥5pp、盘口真有人交易的球员线（打热推大、失常推小），已成定局（≥97¢）和死盘不关注；队伍轨（胜负/让分/大小分）前三节静默，第四节开打 3 分钟出第一份"稳不稳"报告，剩 5 分钟、3 分钟各固定推一次，达标线约 95%（大小分看推算总分离线 ≥10 分）
-- **执行**：Gate 的 Polymarket 板块与 Polymarket 同一订单簿，价格同源；Gate 另收单边 0.8% 手续费，算账用费后口径；监控只报，下单永远人手
+> NBA 滚球监控已拆到独立仓库：[nba-live-monitor](https://github.com/18605887196a-png/nba-live-monitor)
 
 ## 目录
 | 文件 | 说明 |
@@ -58,7 +51,6 @@
 | `scanners/btc_band_scanner.py` | BTC 区间盘扫描器 v1 |
 | `settle_check.py` | 信号结算器（纸面 WIN/LOSS + pnl） |
 | `gate/prediction.py` | Gate News MCP 只读封装（查盘口/异动排行） |
-| `nba_live_monitor/` | NBA 滚球监控：SKILL.md（双轨规则）+ scripts/monitor.py（胜负盘轮询） |
 | `docs/crypto-prediction-framework.md` | 方法论框架 |
 | `results/` | 扫描结果样例 |
 
