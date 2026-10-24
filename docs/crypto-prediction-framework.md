@@ -14,7 +14,9 @@
 - **方法**：取到期日最接近目标结算时间的平均 IV → 对数正态分布 → 理论概率
   - P(above X) = 1 − N((ln(X/S) + ½σ²T) / (σ√T))
 - **为什么专业**：期权市场是全球最聪明的钱对波动率的定价，前瞻性强于任何历史统计
-- **局限**：超短期（<24h）IV 失真；ETH/SOL 没有 Deribit 期权时用 realized vol 降级
+- **局限**：超短期（<24h）IV 失真；SOL 无 Deribit 期权链，用 realized vol；
+  **2026-10-23 铁律**：波动率锚拿不到就直接报"无信号"，不再降级硬报 —
+  BTC/ETH 的 Deribit IV 失败时不再降级 realized，realized 数据不足时也不再造 60% 假数
 
 ### ② 聪明钱流向（验证，非跟单）
 - **数据源**：Gate Smart Money/Whale 标签、Polymarket 链上大额持仓
@@ -63,7 +65,7 @@
 | Polymarket 价格 | gamma-api 原生（按 endDate 过滤） | 信号源 |
 | BTC/ETH 现价 | Gate 现货 API | 模型输入 S |
 | 隐含波动率 | Deribit 期权链 | 模型输入 σ |
-| 备用波动率 | Gate K线 realized vol | Deribit 失败时降级 |
+| 备用波动率 | Gate K线 realized vol | 仅 SOL 使用；数据不足时直接报无信号，不造假数 |
 | 聪明钱 | Gate App 标签 / 链上 | 反向验证 |
 | 订单簿 | Gate MCP get_market_orderbook | 价格真实性 |
 
